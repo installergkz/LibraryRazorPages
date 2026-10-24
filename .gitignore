@@ -339,3 +339,6 @@ ASALocalRun/
 
 /Logs/
 *.log
+
+# Docker
+*.dockerignore

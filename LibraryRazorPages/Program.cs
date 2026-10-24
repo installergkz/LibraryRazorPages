@@ -32,6 +32,8 @@ services.AddScoped<IReportCatalog, ReportCatalog>();
 
 services.AddRazorPages();
 
+services.AddSingleton<MongoLogService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

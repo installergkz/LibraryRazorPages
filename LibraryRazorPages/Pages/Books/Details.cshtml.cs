@@ -1,4 +1,5 @@
 using LibraryRazorPages.Models.ViewModels;
+using LibraryRazorPages.Services;
 using LibraryRazorPages.Services.Interfaces;
 using LibraryRazorPages.Services.Mappings;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +11,13 @@ namespace LibraryRazorPages.Pages.Books
     {
         private readonly IBookService _bookService;
         private readonly IPublicationHouseService _pubHouseService;
+        private readonly MongoLogService _mongoLog;
 
-        public DetailsModel(IBookService bookService, IPublicationHouseService pubHouseService)
+        public DetailsModel(IBookService bookService, IPublicationHouseService pubHouseService, MongoLogService mongoLog)
         {
             _bookService = bookService ?? throw new ArgumentNullException(nameof(bookService));
             _pubHouseService = pubHouseService ?? throw new ArgumentNullException(nameof(pubHouseService));
+            _mongoLog = mongoLog;
         }
 
         [BindProperty]
@@ -28,6 +31,7 @@ namespace LibraryRazorPages.Pages.Books
 
             BookForm = BookMapper.ToBookForm(book);
             BookForm.PublicationHouses = await _pubHouseService.LoadPublicationHousesAsync();
+            await _mongoLog.LogViewAsync(book.Name, User.Identity?.Name);
             return Page();
         }
 

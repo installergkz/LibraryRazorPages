@@ -1,0 +1,38 @@
+services:
+  libraryrazorpages:
+    image: ${DOCKER_REGISTRY-}libraryrazorpages
+    build:
+      context: .
+      dockerfile: LibraryRazorPages/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - redis
+      - mongodb 
+    environment:
+      # - ConnectionStrings__DefaultConnection=Host=host.docker.internal;Port=5432;Database=Library;Username=postgres;Password=postgres
+      - 'ConnectionStrings__Default=Server=host.docker.internal,1433;Database=Library;User Id=sa;Password=1111111$@Sa;TrustServerCertificate=True;'
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__MongoDb=mongodb://library_mongo:27017
+      - "ASPNETCORE_URLS=http://+:80"
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: library_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mongodb:
+    image: mongo:latest
+    container_name: library_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  redis_data:
+  mongo_data:
+  
