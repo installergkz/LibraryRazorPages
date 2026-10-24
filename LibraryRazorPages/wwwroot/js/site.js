@@ -1,4 +1,13 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.app-nav__toggle').forEach(btn => {
+        btn.addEventListener('click', () => btn.classList.toggle('open'));
+    });
 
-// Write your JavaScript code.
+    const alerts = document.querySelectorAll('.alert-dismissible');
+    alerts.forEach(function (alert) {
+        setTimeout(function () {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 3000);
+    });
+});

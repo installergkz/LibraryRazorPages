@@ -1,0 +1,117 @@
+﻿@page
+@model LibraryRazorPages.Pages.Books.DetailsModel
+
+@{
+    ViewData["Title"] = Model.BookForm.Name ?? "Книга";
+}
+
+@if (TempData["StatusMessage"] is string status)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @status
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<form method="post" id="book-form">
+    <input type="hidden" asp-for="BookForm.Id" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="d-flex gap-2 mb-3">
+        <button type="submit" class="btn btn-primary" id="save-btn" disabled>
+            <i class="bi bi-check-lg"></i> Сохранить
+        </button>
+        <a asp-page="./Index" class="btn btn-secondary">Назад к списку</a>
+
+        <span class="vr"></span>
+        
+        <a asp-page="./Details" asp-route-id="@Model.BookForm.Id" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise"></i> Обновить
+        </a>
+
+        <button type="button"
+                class="btn btn-outline-danger ms-auto js-delete-btn"
+                data-id="@Model.BookForm.Id"
+                data-name="@Model.BookForm.Name"
+                title="Удалить">
+            <i class="bi bi-trash"></i> Удалить
+        </button>
+    </div>
+
+    <div class="row">
+        <!-- Левая колонка -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="BookForm.Name" class="form-label"></label>
+                <input asp-for="BookForm.Name" class="form-control" />
+                <span asp-validation-for="BookForm.Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BookForm.Authors" class="form-label"></label>
+                <input asp-for="BookForm.Authors" class="form-control" />
+                <span asp-validation-for="BookForm.Authors" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BookForm.PublicationYear" class="form-label"></label>
+                <input asp-for="BookForm.PublicationYear" class="form-control" />
+                <span asp-validation-for="BookForm.PublicationYear" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Правая колонка -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="BookForm.PublicationHouseId" class="form-label"></label>
+                <select asp-for="BookForm.PublicationHouseId" asp-items="Model.BookForm.PublicationHouses" class="form-select">
+                    <option value="">-- выберите издательство --</option>
+                </select>
+                <span asp-validation-for="BookForm.PublicationHouseId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BookForm.PagesCount" class="form-label"></label>
+                <input asp-for="BookForm.PagesCount" class="form-control" />
+                <span asp-validation-for="BookForm.PagesCount" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BookForm.ISBN" class="form-label"></label>
+                <input asp-for="BookForm.ISBN" class="form-control" />
+                <span asp-validation-for="BookForm.ISBN" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BookForm.Note" class="form-label"></label>
+        <textarea asp-for="BookForm.Note" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="BookForm.Note" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BookForm.ContentsList" class="form-label"></label>
+
+        <div id="contents-editor-wrapper" class="editor-wrapper">
+            <div class="editor-placeholder">
+                <i class="bi bi-hourglass-split"></i> Загрузка редактора…
+            </div>
+            <textarea asp-for="BookForm.ContentsList" class="form-control" rows="6" id="contents-editor"></textarea>
+        </div>
+
+        <span asp-validation-for="BookForm.ContentsList" class="text-danger"></span>
+    </div>
+</form>
+
+<partial name="_DeleteModal" />
+
+@section Styles {
+    <link href="~/lib/ckeditor5/ckeditor5.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_CkEditorInit" />
+}

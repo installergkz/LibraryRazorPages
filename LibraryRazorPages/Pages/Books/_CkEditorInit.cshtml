@@ -1,0 +1,42 @@
+﻿<script src="~/lib/ckeditor5/ckeditor5.umd.js"></script>
+<script>
+    (function() {
+        const editorElement = document.querySelector('#contents-editor');
+        const wrapper = document.querySelector('#contents-editor-wrapper');
+
+        if (editorElement && window.CKEDITOR && CKEDITOR.ClassicEditor) {
+            CKEDITOR.ClassicEditor
+                .create(editorElement, {
+                    licenseKey: 'GPL',
+                    plugins: [
+                        CKEDITOR.Essentials, CKEDITOR.Clipboard, CKEDITOR.Paragraph,
+                        CKEDITOR.Bold, CKEDITOR.Italic, CKEDITOR.Heading,
+                        CKEDITOR.List, CKEDITOR.Link
+                    ],
+                    toolbar: ['undo', 'redo', '|', 'heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', '|', 'link']
+                })
+                .then(editor => {
+                    editor.model.document.on('change:data', () => {
+                        editor.updateSourceElement();
+                        editorElement.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+
+                    // скрываем плейсхолдер, показываем редактор
+                    if (wrapper) {
+                        wrapper.classList.add('editor-ready');
+                    }
+
+                    document.dispatchEvent(new CustomEvent('ckeditor:ready'));
+                })
+                .catch(error => {
+                    console.error('CKEditor:', error);
+                    if (wrapper) {
+                        wrapper.classList.add('editor-error');
+                    }
+                });
+        } else if (wrapper) {
+            // CKEditor недоступен — показываем textarea как есть
+            wrapper.classList.add('editor-error');
+        }
+    })();
+</script>
