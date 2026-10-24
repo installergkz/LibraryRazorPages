@@ -1,0 +1,109 @@
+﻿@page
+@using LibraryRazorPages.Extensions
+@model LibraryRazorPages.Pages.Reports.IndexModel
+
+@{
+    ViewData["Title"] = "Отчёты";
+}
+
+@if (!string.IsNullOrEmpty(Model.ReportViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ReportViewModel.ErrorMessage</div>
+}
+
+<form id="report-form" method="get" class="mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label for="key" class="form-label">Отчёт</label>
+            <select name="key" id="key" class="form-select">
+                <option value="">— выберите отчёт —</option>
+                @foreach (var report in Model.ReportViewModel.ReportsList)
+                {
+                    <option value="@report.Key"
+                            data-has-params="@report.HasParameters.ToString().ToLower()"
+                            selected="@(report.Key == Model.ReportViewModel.SelectedKey)">
+                        @report.Title
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4 @(Model.ReportViewModel.Report?.HasParameters == true ? "" : "d-none")" id="term-wrapper">
+            <label for="term" class="form-label">Поисковый запрос</label>
+            <input type="text"
+                   id="term"
+                   name="term"
+                   value="@(Model.ReportViewModel.Parameters.TryGetValue("term", out var t) ? t : "")"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Показать
+            </button>
+        </div>
+    </div>
+</form>
+
+<div id="report-result">
+    @if (Model.ReportViewModel.Report is null)
+    {
+        <div class="alert alert-info">Выберите отчёт из списка</div>
+    }
+    else if (Model.ReportViewModel.Data?.Any() != true)
+    {
+        <div class="alert alert-info">Нет данных.</div>
+    }
+    else
+    {
+        var props = Model.ReportViewModel.Report.ModelType.GetProperties()
+            .OrderBy(p => p.GetOrder())
+            .ToList();
+
+        <h2 class="h5 mb-3">@Model.ReportViewModel.Report.Title</h2>
+
+        <table class="table table-striped table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    @foreach (var p in props)
+                    {
+                        <th>@p.GetHeader()</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ReportViewModel.Data)
+                {
+                    <tr>
+                        @foreach (var p in props)
+                        {
+                            var value = p.GetValue(item);
+                            var format = p.GetFormat();
+                            var display = value switch
+                            {
+                                null => "—",
+                                IFormattable f when !string.IsNullOrEmpty(format) => f.ToString(format, null),
+                                _ => value.ToString() ?? "—"
+                            };
+                            <td>@display</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<!-- Оверлей загрузки -->
+<div id="loading-overlay" class="loading-overlay d-none">
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка…</span>
+        </div>
+        <div class="loading-text">Загрузка отчёта…</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/report-form.js"></script>
+}

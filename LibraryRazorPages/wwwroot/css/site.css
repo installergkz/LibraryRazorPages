@@ -1,31 +1,243 @@
-html {
-  font-size: 14px;
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+/* Layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* Sidebar */
+.app-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background-color: #1a1a1a;
+    color: #d1d5db;
+    display: flex;
+    flex-direction: column;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.app-sidebar__footer {
+    margin-top: auto;
+    padding: 1rem 1.5rem;
+    color: #6b7280;
+    font-size: 0.8rem;
+    border-top: 1px solid #2a2a2a;
 }
 
-body {
-  margin-bottom: 60px;
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.25rem 1.5rem;
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid #2a2a2a;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.app-brand i {
+    font-size: 1.4rem;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.app-brand:hover {
+    color: #ffffff;
+    background-color: #232323;
+}
+
+/* Nav */
+.app-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 0;
+    overflow-y: auto;
+}
+
+.app-nav__link,
+.app-nav__sublink {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1.5rem;
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 0.95rem;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.app-nav__link:hover,
+.app-nav__sublink:hover {
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.app-nav__link.active,
+.app-nav__sublink.active {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border-left: 3px solid #3b82f6;
+    padding-left: calc(1.5rem - 3px);
+}
+
+.app-nav__link i,
+.app-nav__sublink i {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.app-nav__sublink {
+    padding-left: 3rem;
+    font-size: 0.9rem;
+}
+
+.app-nav__sublink.active {
+    padding-left: calc(3rem - 3px);
+}
+
+/* Раскрывающийся пункт */
+.app-nav__toggle {
+    position: relative;
+}
+
+.app-nav__arrow {
+    margin-left: auto;
+    font-size: 0.85rem !important;
+    transition: transform 0.2s;
+}
+
+.app-nav__toggle.open .app-nav__arrow {
+    transform: rotate(180deg);
+}
+
+/* Content */
+.app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: #ffffff;
+}
+
+.app-content__header {
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.app-content__title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.app-content__body {
+    flex: 1;
+    padding: 1.5rem 2.5rem;
+}
+
+.book-link {
+    color: #111827;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.book-link:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+textarea.form-control {
+    resize: none;
+    overflow-y: auto;
+}
+
+/* CKEditor */
+.ck-editor__editable {
+    min-height: 200px;
+}
+
+.editor-wrapper {
+    position: relative;
+    min-height: 200px;
+}
+
+/* textarea скрыта, пока CKEditor не готов */
+.editor-wrapper:not(.editor-ready):not(.editor-error) textarea {
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* плейсхолдер "Загрузка..." */
+.editor-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.95rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    z-index: 1;
+}
+
+/* когда CKEditor готов — прячем плейсхолдер */
+.editor-ready
+.editor-placeholder {
+    display: none;
+}
+
+/* когда ошибка — показываем textarea как обычно, плейсхолдер прячем */
+.editor-error
+.editor-placeholder {
+    display: none;
+}
+
+.editor-error textarea {
+    visibility: visible;
+    height: auto;
+    padding: initial;
+    border: initial;
+}
+
+/* отчеты */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-text {
+    color: #374151;
+    font-size: 0.95rem;
 }

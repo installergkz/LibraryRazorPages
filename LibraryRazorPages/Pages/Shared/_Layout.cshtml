@@ -1,51 +1,96 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LibraryRazorPages</title>
+    <title>@ViewData["Title"] - Библиотека</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap-icons.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LibraryRazorPages.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">LibraryRazorPages</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    @{
+        var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+        string IsActive(string pagePrefix) => currentPage.StartsWith(pagePrefix, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+        var booksOpen = currentPage.StartsWith("/Books", StringComparison.OrdinalIgnoreCase);
+    }
+
+    <div class="app-container">
+
+        <!-- Сайдбар -->
+        <aside class="app-sidebar">
+            <a class="app-brand" asp-page="/Index">
+                <i class="bi bi-book"></i>
+                <span>Библиотека</span>
+            </a>
+
+            <nav class="app-nav">
+                <a class="app-nav__link @IsActive("/Index")" asp-page="/Index">
+                    <i class="bi bi-house"></i>
+                    <span>Главная</span>
+                </a>
+
+                <div class="app-nav__group">
+                    <button type="button"
+                            class="app-nav__link app-nav__toggle @(booksOpen ? "open" : "")"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#booksSubmenu"
+                            aria-expanded="@(booksOpen ? "true" : "false")">
+                        <i class="bi bi-book"></i>
+                        <span>Книги</span>
+                        <i class="bi bi-chevron-down app-nav__arrow"></i>
+                    </button>
+
+                    <div class="collapse @(booksOpen ? "show" : "")" id="booksSubmenu">
+                        <a class="app-nav__sublink @IsActive("/Books/Index")" asp-page="/Books/Index">
+                            <i class="bi bi-list-ul"></i>
+                            <span>Список книг</span>
+                        </a>
+                        <a class="app-nav__sublink @IsActive("/Books/Create")" asp-page="/Books/Create">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Добавить книгу</span>
+                        </a>
+                    </div>
                 </div>
+
+                <a class="app-nav__link @IsActive("/PublicationHouses")" asp-page="/PublicationHouses/Index">
+                    <i class="bi bi-building"></i>
+                    <span>Издательства</span>
+                </a>
+
+                <a class="app-nav__link @IsActive("/Reports")" asp-page="/Reports/Index">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Отчёты</span>
+                </a>
+
+                <a class="app-nav__link @IsActive("/Settings")" asp-page="/Settings/Index">
+                    <i class="bi bi-gear"></i>
+                    <span>Настройки</span>
+                </a>
+            </nav>
+            <footer class="app-sidebar__footer">
+                © @DateTime.Now.Year — Library
+            </footer>
+        </aside>
+
+        <!-- Основной контент (правая часть) -->
+        <main class="app-content">
+            <header class="app-content__header"><h1 class="app-content__title">@ViewData["Title"]</h1></header>
+
+            <div class="app-content__body">
+                @RenderBody()
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - LibraryRazorPages - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/delete-modal.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/dirty-form.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

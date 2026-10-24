@@ -1,0 +1,69 @@
+﻿@page
+@model LibraryRazorPages.Pages.Books.IndexModel
+
+@{
+    ViewData["Title"] = "Список книг";
+}
+
+@if (TempData["StatusMessage"] is string status)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @status
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<p>
+    <a asp-page="./Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Добавить книгу
+    </a>
+    <a asp-page="./Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-clockwise"></i> Обновить
+    </a>
+</p>
+
+@if (Model.Books.Count == 0)
+{
+    <div class="alert alert-info">Книг пока нет.</div>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th style="width: 60px;">№</th>
+                <th style="width: 80px;">ИД</th>
+                <th>Название</th>
+                <th>Авторы</th>
+                <th>Издательство</th>
+                <th class="text-end"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Books.Count; i++)
+            {
+                var book = Model.Books[i];
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@book.Id</td>
+                    <td>
+                        <a asp-page="./Details" asp-route-id="@book.Id" class="book-link">@book.Name</a>
+                    </td>
+                    <td>@book.Authors</td>
+                    <td>@(book.PublicationHouse?.Name ?? "—")</td>
+                    <td class="text-end">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger js-delete-btn"
+                                data-id="@book.Id"
+                                data-name="@book.Name"
+                                title="Удалить">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<partial name="_DeleteModal" />
