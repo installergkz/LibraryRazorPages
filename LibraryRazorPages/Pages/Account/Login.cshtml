@@ -1,0 +1,44 @@
+﻿@page
+@model LibraryRazorPages.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Вход";
+    Layout = "_LayoutLogin";
+}
+
+<div class="login-card">
+    <div class="login-logo">
+        <i class="bi bi-book"></i>
+    </div>
+    <h2>Библиотека</h2>
+
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Username" class="form-label">Логин</label>
+            <input asp-for="Input.Username" class="form-control" placeholder="Введите логин" />
+            <span asp-validation-for="Input.Username" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Password" class="form-label">Пароль</label>
+            <input asp-for="Input.Password" class="form-control" placeholder="Введите пароль" type="password" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger py-2" role="alert">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary btn-login">
+            Войти
+        </button>
+        
+        <div class="text-center mt-3">
+            <a href="/Account/Register" class="text-decoration-none text-light opacity-75">Нет аккаунта? Зарегистрироваться</a>
+        </div>
+    </form>
+</div>

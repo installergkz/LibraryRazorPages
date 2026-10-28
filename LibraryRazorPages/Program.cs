@@ -5,6 +5,8 @@ using LibraryRazorPages.DAL.Reports;
 using LibraryRazorPages.Models;
 using LibraryRazorPages.Services;
 using LibraryRazorPages.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,9 +32,29 @@ services.AddScoped<IReportProvider, SearchHeadingsReport>();
 
 services.AddScoped<IReportCatalog, ReportCatalog>();
 
-services.AddRazorPages();
+services.AddRazorPages(options =>
+{
+    // Запрещаем кэшировать страницы
+    options.Conventions.ConfigureFilter(new Microsoft.AspNetCore.Mvc.ResponseCacheAttribute
+    {
+        NoStore = true,
+        Location = Microsoft.AspNetCore.Mvc.ResponseCacheLocation.None
+    });
+});
 
 services.AddSingleton<MongoLogService>();
+
+services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login"; // Куда перенаправлять неавторизованных
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
 var app = builder.Build();
 
@@ -42,11 +64,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseRouting();
+// Отключаем для работы в Docker без HTTPS
+//app.UseHttpsRedirection();
 
-app.MapStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+//app.MapStaticAssets();
+app.MapRazorPages();//.WithStaticAssets();
 
 app.Run();

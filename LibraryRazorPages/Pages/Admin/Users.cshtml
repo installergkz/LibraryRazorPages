@@ -1,0 +1,38 @@
+﻿@page
+@model LibraryRazorPages.Pages.Admin.UsersModel
+@{
+    ViewData["Title"] = "Управление пользователями";
+}
+
+<h2>Управление пользователями (Админка)</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Логин</th>
+            <th>Текущая роль</th>
+            <th>Изменить роль</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Username</td>
+                <td>@user.Role</td>
+                <td>
+                    <form method="post" asp-page-handler="ChangeRole" class="d-flex gap-2">
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <select name="newRole" class="form-select w-auto">
+                            <option value="User" selected="@(user.Role == "User")">User</option>
+                            <option value="Admin" selected="@(user.Role == "Admin")">Admin</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Сменить</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

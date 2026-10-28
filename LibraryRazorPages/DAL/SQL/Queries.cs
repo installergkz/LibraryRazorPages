@@ -13,6 +13,11 @@
             public const string GetHeadingCounts = "GetHeadingCounts";
             public const string GetFirstHeadings = "GetFirstHeadings";
             public const string SearchBooksByHeading = "SearchBooksByHeading";
+            public const string CreateUser = "CreateUser";
+            public const string GetUserByName = "GetUserByName";
+            public const string GetUsers = "GetUsers";
+            public const string CheckUserExists = "CheckUserExists";
+            public const string UpdateUserRole = "UpdateUserRole";
         }
         
     }

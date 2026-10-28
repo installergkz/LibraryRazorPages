@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Библиотека</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+            body.login-body {
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                /* Красивый темный градиент в стиле сайдбара */
+                background: linear-gradient(135deg, #1e1e2f 0%, #0a0a0a 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .login-card {
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 40px;
+                width: 100%;
+                max-width: 420px;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+                color: #fff;
+            }
+
+                .login-card h2 {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    font-weight: 600;
+                    letter-spacing: 1px;
+                }
+
+                .login-card .form-control {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: #fff;
+                    border-radius: 10px;
+                    padding: 12px 15px;
+                }
+
+                    .login-card .form-control:focus {
+                        background: rgba(255, 255, 255, 0.15);
+                        border-color: #0d6efd;
+                        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                        color: #fff;
+                    }
+
+                .login-card .form-label {
+                    font-size: 0.9rem;
+                    color: rgba(255, 255, 255, 0.7);
+                    margin-bottom: 5px;
+                }
+
+            .btn-login {
+                width: 100%;
+                padding: 12px;
+                border-radius: 10px;
+                font-size: 1.1rem;
+                font-weight: 500;
+                margin-top: 10px;
+                transition: all 0.3s ease;
+            }
+
+                .btn-login:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+                }
+
+            .login-logo {
+                text-align: center;
+                font-size: 2rem;
+                margin-bottom: 10px;
+                color: #fff;
+            }
+
+            .text-danger {
+                font-size: 0.85rem;
+                margin-top: 5px;
+                display: block;
+            }
+    </style>
+</head>
+<body class="login-body">
+    @RenderBody()
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
