@@ -14,6 +14,7 @@ public class ActivityLog
 
     [BsonRepresentation(BsonType.String)]
     public LogAction Action { get; set; }
-    public string? UserName { get; set; }
+    public int? UserId { get; set; }
+    public string? UserLogin { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

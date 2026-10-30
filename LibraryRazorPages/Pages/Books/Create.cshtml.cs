@@ -4,6 +4,7 @@ using LibraryRazorPages.Models;
 using LibraryRazorPages.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace LibraryRazorPages.Pages.Books
 {
@@ -40,7 +41,13 @@ namespace LibraryRazorPages.Pages.Books
             {
                 var id = await _bookService.CreateAsync(BookMapper.ToBook(BookForm));
                 TempData["StatusMessage"] = $"Книга «{BookForm.Name}» создана.";
-                await _mongoLog.LogAsync("Book", id.ToString(), BookForm.Name, LogAction.Create, User.Identity?.Name);
+
+                int? userId = null;
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(userIdStr, out var parsed))
+                    userId = parsed;
+
+                await _mongoLog.LogAsync("Book", id.ToString(), BookForm.Name, LogAction.Create, userId);
                 return RedirectToPage("./Details", new { id });
             }
             catch (InvalidOperationException ex)

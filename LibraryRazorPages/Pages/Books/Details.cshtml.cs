@@ -4,6 +4,7 @@ using LibraryRazorPages.Models;
 using LibraryRazorPages.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace LibraryRazorPages.Pages.Books
 {
@@ -33,7 +34,14 @@ namespace LibraryRazorPages.Pages.Books
             BookForm = BookForm with { PublicationHouses = await _pubHouseService.LoadPublicationHousesAsync() };
 
             if (!isUpdated)
-                await _mongoLog.LogAsync("Book", book.Id.ToString(), book.Name, LogAction.View, User.Identity?.Name);
+            {
+                int? userId = null;
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(userIdStr, out var parsed))
+                    userId = parsed;
+
+                await _mongoLog.LogAsync("Book", book.Id.ToString(), book.Name, LogAction.View, userId);
+            }
 
             return Page();
         }
@@ -53,7 +61,13 @@ namespace LibraryRazorPages.Pages.Books
                     return NotFound();
 
                 TempData["StatusMessage"] = $"Книга «{BookForm.Name}» сохранена.";
-                await _mongoLog.LogAsync("Book", BookForm.Id.ToString(), BookForm.Name, LogAction.Update, User.Identity?.Name);
+
+                int? userId = null;
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(userIdStr, out var parsed))
+                    userId = parsed;
+
+                await _mongoLog.LogAsync("Book", BookForm.Id.ToString(), BookForm.Name, LogAction.Update, userId);
                 return RedirectToPage("./Details", new { id = BookForm.Id, isUpdated = true });
             }
             catch (InvalidOperationException ex)

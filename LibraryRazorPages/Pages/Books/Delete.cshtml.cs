@@ -2,6 +2,7 @@ using LibraryRazorPages.Enums;
 using LibraryRazorPages.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace LibraryRazorPages.Pages.Books
 {
@@ -27,7 +28,13 @@ namespace LibraryRazorPages.Pages.Books
                 return NotFound();
 
             TempData["StatusMessage"] = "Книга удалена.";
-            await _mongoLog.LogAsync("Book", book.Id.ToString(), book.Name, LogAction.Delete, User.Identity?.Name);
+
+            int? userId = null;
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userIdStr, out var parsed))
+                userId = parsed;
+
+            await _mongoLog.LogAsync("Book", book.Id.ToString(), book.Name, LogAction.Delete, userId);
             return RedirectToPage("./Index");
         }
     }

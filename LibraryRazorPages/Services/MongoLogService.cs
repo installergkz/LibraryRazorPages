@@ -12,7 +12,7 @@ public class MongoLogService : IMongoLogService
     }
 
     public async Task LogAsync(string entityType, string entityId, string entityName, LogAction action,
-        string? userName, CancellationToken cancellationToken = default)
+        int? userId, CancellationToken cancellationToken = default)
     {
         var log = new ActivityLog
         {
@@ -20,7 +20,7 @@ public class MongoLogService : IMongoLogService
             EntityId = entityId,
             EntityName = entityName,
             Action = action,
-            UserName = userName,
+            UserId = userId,
             Timestamp = DateTime.UtcNow
         };
         await _logsCollection.InsertOneAsync(log, null, cancellationToken);

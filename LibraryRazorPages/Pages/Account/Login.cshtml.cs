@@ -26,11 +26,7 @@ namespace LibraryRazorPages.Pages.Account
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (string.IsNullOrEmpty(LoginForm.Login) || string.IsNullOrEmpty(LoginForm.Password))
-            {
-                ErrorMessage = "Введите логин и пароль";
-                return Page();
-            }
+            if (!ModelState.IsValid) return Page();
 
             var user = await _userRepository.GetByLoginAsync(LoginForm.Login);
             if (user == null)
@@ -39,14 +35,13 @@ namespace LibraryRazorPages.Pages.Account
                 return Page();
             }
 
-            // Проверяем пароль
             if (!VerifyPassword(LoginForm.Password, user.PasswordHash))
             {
                 ErrorMessage = "Неверный логин или пароль";
                 return Page();
             }
 
-            // Создаем куки
+            // Куки.
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Login),

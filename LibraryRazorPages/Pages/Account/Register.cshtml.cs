@@ -37,12 +37,11 @@ namespace LibraryRazorPages.Pages.Account
 
             var passwordHashToStore = GetPasswordHash();
             var user = new User(0, RegisterForm.Login, passwordHashToStore, "User");
-
-            await _userRepository.CreateAsync(user);
-
+            var userId = await _userRepository.CreateAsync(user);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, RegisterForm.Login),
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(ClaimTypes.Role, "User")
             };
 

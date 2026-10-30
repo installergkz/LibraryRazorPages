@@ -23,38 +23,31 @@ services.AddOptions<MongoDbSettings>()
     .Bind(builder.Configuration.GetSection(MongoDbSettings.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
-
 services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
     return new MongoClient(settings.ConnectionString);
 });
-
 services.AddSingleton<IMongoCollection<ActivityLog>>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
     return client.GetDatabase(settings.DatabaseName).GetCollection<ActivityLog>(settings.CollectionName);
 });
-
 services.AddSingleton<IMongoLogService, MongoLogService>();
 
 services.AddDbProviderFactory(builder.Configuration);
 
 services.AddScoped<IUserRepository, UserRepository>();
-
 services.AddScoped<IBookRepository, BookRepository>();
 services.AddScoped<IBookService, BookService>();
-
 services.AddScoped<IEntityRepository<PublicationHouse>, PublicationHouseRepository>();
 services.AddScoped<IPublicationHouseService, PublicationHouseService>();
-
 services.AddScoped<IReportRepository, ReportRepository>();
 services.AddScoped<IReportProvider, HeadingsReport>();
 services.AddScoped<IReportProvider, HeadingCountsReport>();
 services.AddScoped<IReportProvider, FirstHeadingsReport>();
 services.AddScoped<IReportProvider, SearchHeadingsReport>();
-
 services.AddScoped<IReportCatalog, ReportCatalog>();
 
 services.AddRazorPages(options =>
@@ -70,14 +63,12 @@ services.AddRazorPages(options =>
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login"; // Куда перенаправлять неавторизованных
+        options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build());
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
 var app = builder.Build();
 
