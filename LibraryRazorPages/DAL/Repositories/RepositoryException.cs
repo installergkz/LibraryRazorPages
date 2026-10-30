@@ -1,4 +1,4 @@
-﻿namespace LibraryRazorPages.DAL.Dapper.Repositories
+﻿namespace LibraryRazorPages.DAL.Repositories
 {
     public class RepositoryException : Exception
     {

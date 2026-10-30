@@ -1,12 +1,15 @@
-using LibraryRazorPages.DAL.Dapper.Repositories;
 using LibraryRazorPages.DAL.Helpers;
 using LibraryRazorPages.DAL.Interfaces;
 using LibraryRazorPages.DAL.Reports;
+using LibraryRazorPages.DAL.Repositories;
+using LibraryRazorPages.DAL.Settings;
 using LibraryRazorPages.Models;
 using LibraryRazorPages.Services;
 using LibraryRazorPages.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +19,29 @@ builder.Host.UseNLog();
 
 var services = builder.Services;
 
+services.AddOptions<MongoDbSettings>()
+    .Bind(builder.Configuration.GetSection(MongoDbSettings.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+services.AddSingleton<IMongoCollection<ActivityLog>>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return client.GetDatabase(settings.DatabaseName).GetCollection<ActivityLog>(settings.CollectionName);
+});
+
+services.AddSingleton<IMongoLogService, MongoLogService>();
+
 services.AddDbProviderFactory(builder.Configuration);
+
+services.AddScoped<IUserRepository, UserRepository>();
 
 services.AddScoped<IBookRepository, BookRepository>();
 services.AddScoped<IBookService, BookService>();
@@ -41,8 +66,6 @@ services.AddRazorPages(options =>
         Location = Microsoft.AspNetCore.Mvc.ResponseCacheLocation.None
     });
 });
-
-services.AddSingleton<MongoLogService>();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

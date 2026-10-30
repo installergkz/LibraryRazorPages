@@ -1,6 +1,6 @@
 ﻿using Dapper.FluentMap;
 
-namespace LibraryRazorPages.DAL.Dapper.Mapping
+namespace LibraryRazorPages.DAL.Mapping
 {
     public static class FluentMappingInitializer
     {

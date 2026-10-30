@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using LibraryRazorPages.DAL.Interfaces;
-using LibraryRazorPages.Models.Reports;
+using LibraryRazorPages.Models;
 
 namespace LibraryRazorPages.DAL.Reports
 {

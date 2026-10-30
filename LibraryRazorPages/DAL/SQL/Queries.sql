@@ -62,12 +62,12 @@ BEGIN
     CREATE TABLE dbo.Users
     (
         Id INT IDENTITY(1,1) NOT NULL,
-        Username NVARCHAR(250)  NOT NULL,
+        [Login] NVARCHAR(50)  NOT NULL,
         PasswordHash NVARCHAR(MAX) NOT NULL,
         [Role] NVARCHAR(50) NOT NULL
 
         CONSTRAINT PK_Users PRIMARY KEY (Id),
-        CONSTRAINT UQ_Users_Username UNIQUE (Username)
+        CONSTRAINT UQ_Users_Login UNIQUE ([Login])
     );
 END
 GO
@@ -240,47 +240,47 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT Id, Username, Role
+    SELECT Id, [Login], Role
     FROM Users 
-    ORDER BY Username;
+    ORDER BY [Login];
 END;
 GO
 
 -- Получить пользователя по имени
-CREATE PROCEDURE [dbo].[GetUserByName]
-    @Username NVARCHAR(250)
+CREATE PROCEDURE [dbo].[GetUserByLogin]
+    @Login NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT Id, Username, PasswordHash, Role
+    SELECT Id, [Login], PasswordHash, Role
     FROM Users 
-    WHERE Username = @Username
+    WHERE [Login] = @Login
 END;
 GO
 
 -- Создать пользователя
 CREATE PROCEDURE [dbo].[CreateUser]
-    @Username NVARCHAR(100),
+    @Login NVARCHAR(50),
     @PasswordHash NVARCHAR(MAX),
     @Role NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO dbo.Users (Username, PasswordHash, [Role])
-    VALUES (@Username, @PasswordHash, @Role);
+    INSERT INTO dbo.Users ([Login], PasswordHash, [Role])
+    VALUES (@Login, @PasswordHash, @Role);
 END;
 GO
 
 -- Проверить есть ли пользователь с заданным именем
 CREATE PROCEDURE [dbo].[CheckUserExists]
-    @Username NVARCHAR(250)
+    @Login NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.Users WHERE Username = @Username) THEN 1 ELSE 0 END
+    SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.Users WHERE [Login] = @Login) THEN 1 ELSE 0 END
 END;
 GO
 
@@ -288,12 +288,12 @@ GO
 CREATE PROCEDURE [dbo].[UpdateUserRole]
     @Id INT,
     @Role NVARCHAR(50),
-    @CurrentUsername NVARCHAR(250)
+    @CurrentUserLogin NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF EXISTS (SELECT 1 FROM dbo.Users WHERE Id = @Id AND Username = @CurrentUsername)
+    IF EXISTS (SELECT 1 FROM dbo.Users WHERE Id = @Id AND [Login] = @CurrentUserLogin)
     BEGIN
         ;THROW 50000, 'Вы не можете изменить роль самому себе!', 1;
     END;
@@ -309,7 +309,7 @@ GO
 -- ЗАПОЛНЕНИЕ ТАБЛИЦ
 -- Добавить админа.
 INSERT INTO dbo.Users
-    (Username, PasswordHash, [Role])
+    ([Login], PasswordHash, [Role])
 VALUES
     (N'Admin', N'ZPPM1FXXMvkEOzWjSWLP3A==:z08U8ZwqEZMkg1V/UQsQQVEIQYbkhB3QQ8RNv6KagcY=', N'Admin')
 

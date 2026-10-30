@@ -1,7 +1,7 @@
 ﻿using Dapper.FluentMap.Mapping;
 using LibraryRazorPages.Models;
 
-namespace LibraryMvc.DAL.Dapper.Mapping
+namespace LibraryRazorPages.DAL.Mapping
 {
     public class BookMap : EntityMap<Book>
     {

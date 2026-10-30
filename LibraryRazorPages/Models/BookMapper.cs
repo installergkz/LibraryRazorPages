@@ -1,11 +1,10 @@
-﻿using LibraryRazorPages.Models;
-using LibraryRazorPages.Models.ViewModels;
+﻿using LibraryRazorPages.DTO;
 
-namespace LibraryRazorPages.Services.Mappings
+namespace LibraryRazorPages.Models
 {
     public static class BookMapper
     {
-        public static Book ToBook(BookForm bookForm) => new Book
+        public static Book ToBook(BookFormDto bookForm) => new Book
         {
             Id = bookForm.Id,
             Name = bookForm.Name,
@@ -18,7 +17,7 @@ namespace LibraryRazorPages.Services.Mappings
             ContentsList = bookForm.ContentsList
         };
 
-        public static BookForm ToBookForm(Book book) => new BookForm
+        public static BookFormDto ToBookForm(Book book) => new BookFormDto
         {
             Id = book.Id,
             Name = book.Name,

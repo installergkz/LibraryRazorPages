@@ -20,7 +20,7 @@
         {
             <tr>
                 <td>@user.Id</td>
-                <td>@user.Username</td>
+                <td>@user.Login</td>
                 <td>@user.Role</td>
                 <td>
                     <form method="post" asp-page-handler="ChangeRole" class="d-flex gap-2">
@@ -29,7 +29,7 @@
                             <option value="User" selected="@(user.Role == "User")">User</option>
                             <option value="Admin" selected="@(user.Role == "Admin")">Admin</option>
                         </select>
-                        <button type="submit" class="btn btn-sm btn-primary">Сменить</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Изменить</button>
                     </form>
                 </td>
             </tr>

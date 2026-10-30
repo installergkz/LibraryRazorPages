@@ -1,6 +1,6 @@
 ﻿using LibraryRazorPages.DAL.Reports;
 
-namespace LibraryRazorPages.Models.Reports
+namespace LibraryRazorPages.Models
 {
     public class BookHeading
     {

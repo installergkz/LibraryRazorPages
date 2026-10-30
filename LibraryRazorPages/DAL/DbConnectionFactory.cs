@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Data.Common;
+﻿using System.Data.Common;
 using LibraryRazorPages.DAL.Interfaces;
 
 namespace LibraryRazorPages.DAL
@@ -15,7 +14,7 @@ namespace LibraryRazorPages.DAL
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
-        public IDbConnection CreateConnection()
+        public DbConnection CreateConnection()
         {
             var conn = _factory.CreateConnection() ?? throw new InvalidOperationException("DbProviderFactory вернул null");
             conn.ConnectionString = _connectionString;

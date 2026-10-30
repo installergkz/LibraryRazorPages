@@ -4,7 +4,7 @@ using LibraryRazorPages.DAL.SQL;
 using LibraryRazorPages.Models;
 using System.Data;
 
-namespace LibraryRazorPages.DAL.Dapper.Repositories
+namespace LibraryRazorPages.DAL.Repositories
 {
     public class BookRepository : IBookRepository
     {
@@ -17,14 +17,17 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Book?> GetAsync(int id, CancellationToken ct = default)
+        public async Task<Book?> GetAsync(int id, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
-                using var conn = _connectionFactory.CreateConnection();
-                var books = await QueryBooksAsync(conn, new { Id = id });
+                await using var conn = _connectionFactory.CreateConnection();
+                var books = await QueryBooksAsync(conn, new { Id = id }, cancellationToken);
                 return books.FirstOrDefault();
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (Exception ex)
             {
                 var message = $"Не удалось получить книгу с ИД {id}.";
@@ -33,13 +36,16 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken ct = default)
+        public async Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
-                using var conn = _connectionFactory.CreateConnection();
-                return await QueryBooksAsync(conn);
+                await using var conn = _connectionFactory.CreateConnection();
+                return await QueryBooksAsync(conn, null, cancellationToken);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (Exception ex)
             {
                 var message = "Не удалось получить книги.";
@@ -48,17 +54,20 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             }
         }
 
-        public async Task<Book?> GetByIsbnAsync(string isbn, CancellationToken ct = default)
+        public async Task<Book?> GetByIsbnAsync(string isbn, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(isbn))
                 return null;
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
-                using var conn = _connectionFactory.CreateConnection();
-                var books = await QueryBooksAsync(conn, new { ISBN = isbn });
+                await using var conn = _connectionFactory.CreateConnection();
+                var books = await QueryBooksAsync(conn, new { ISBN = isbn }, cancellationToken);
                 return books.FirstOrDefault();
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Не удалось получить книгу по ISBN {Isbn}.", isbn);
@@ -66,15 +75,24 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             }
         }
 
-        public async Task<int> CreateAsync(Book book, CancellationToken ct = default)
+        public async Task<int> CreateAsync(Book book, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 var queryParams = CreateParams(book);
                 queryParams.Add("NewBookId", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 
-                using var conn = _connectionFactory.CreateConnection();
-                await conn.ExecuteAsync(Queries.StoredProcedures.CreateBook, queryParams);
+                var command = new CommandDefinition(
+                    commandText: Queries.StoredProcedures.CreateBook,
+                    commandType: CommandType.StoredProcedure,
+                    parameters: queryParams,
+                    cancellationToken: cancellationToken
+                );
+
+                await using var conn = _connectionFactory.CreateConnection();
+                await conn.ExecuteAsync(command);
                 
                 var newBookId = queryParams.Get<int?>("NewBookId");
                 if (newBookId is null || newBookId <= 0)
@@ -82,6 +100,7 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
 
                 return newBookId.Value;
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (RepositoryException) { throw; }
             catch (Exception ex)
             {
@@ -91,16 +110,24 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             }
         }
 
-        public async Task<bool> UpdateAsync(Book book, CancellationToken ct = default)
+        public async Task<bool> UpdateAsync(Book book, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(book);
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 var queryParams = CreateParams(book, book.Id);
+                var command = new CommandDefinition(
+                    commandText: Queries.StoredProcedures.UpdateBook,
+                    commandType: CommandType.StoredProcedure,
+                    parameters: queryParams,
+                    cancellationToken: cancellationToken
+                );
 
-                using var conn = _connectionFactory.CreateConnection();
-                var affected = await conn.ExecuteAsync(Queries.StoredProcedures.UpdateBook, queryParams);
+                await using var conn = _connectionFactory.CreateConnection();
+                var affected = await conn.ExecuteAsync(command);
                 if (affected == 0)
                 {
                     var message = $"Книга с ИД {book.Id} не найдена.";
@@ -110,6 +137,7 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
 
                 return true;
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (KeyNotFoundException) { throw; }
             catch (Exception ex)
             {
@@ -119,12 +147,21 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             }
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
+        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
-                using var conn = _connectionFactory.CreateConnection();
-                var affected = await conn.ExecuteAsync(Queries.StoredProcedures.DeleteBook, new { Id = id });
+                var command = new CommandDefinition(
+                    commandText: Queries.StoredProcedures.DeleteBook,
+                    commandType: CommandType.StoredProcedure,
+                    parameters: new { Id = id },
+                    cancellationToken: cancellationToken
+                );
+
+                await using var conn = _connectionFactory.CreateConnection();
+                var affected = await conn.ExecuteAsync(command);
                 if (affected == 0)
                 {
                     var message = $"Книга с ИД {id} не найдена.";
@@ -134,6 +171,7 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
 
                 return true;
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (KeyNotFoundException) { throw; }
             catch (Exception ex)
             {
@@ -143,17 +181,24 @@ namespace LibraryRazorPages.DAL.Dapper.Repositories
             }
         }
 
-        private static async Task<IReadOnlyList<Book>> QueryBooksAsync(IDbConnection connection, object? param = null, CancellationToken ct = default)
+        private static async Task<IReadOnlyList<Book>> QueryBooksAsync(IDbConnection connection,
+            object? param = null, CancellationToken cancellationToken = default)
         {
+            var command = new CommandDefinition(
+                commandText: Queries.StoredProcedures.GetBooks,
+                commandType: CommandType.StoredProcedure,
+                parameters: param,
+                cancellationToken: cancellationToken
+            );
+
             var books = await connection.QueryAsync<Book, PublicationHouse, Book>(
-                Queries.StoredProcedures.GetBooks,
+                command,
                 (book, ph) =>
                 {
                     book.PublicationHouse = ph;
                     return book;
                 },
-                splitOn: "PublicationHouseId",
-                param: param);
+                splitOn: "PublicationHouseId");
 
             return books.AsList();
         }

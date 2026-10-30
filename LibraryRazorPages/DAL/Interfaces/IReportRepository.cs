@@ -1,12 +1,12 @@
-﻿using LibraryRazorPages.Models.Reports;
+﻿using LibraryRazorPages.Models;
 
 namespace LibraryRazorPages.DAL.Interfaces
 {
     public interface IReportRepository
     {
-        Task<IReadOnlyList<BookHeading>> GetBookHeadingsAsync(CancellationToken ct = default);
-        Task<IReadOnlyList<BookHeadingCount>> GetHeadingCountsAsync(CancellationToken ct = default);
-        Task<IReadOnlyList<BookFirstHeading>> GetFirstHeadingsAsync(CancellationToken ct = default);
-        Task<IReadOnlyList<BookHeading>> SearchBooksByHeadingAsync(string term, CancellationToken ct = default);
+        Task<IReadOnlyList<BookHeading>> GetBookHeadingsAsync(CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<BookHeadingCount>> GetHeadingCountsAsync(CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<BookFirstHeading>> GetFirstHeadingsAsync(CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<BookHeading>> SearchBooksByHeadingAsync(string term, CancellationToken cancellationToken = default);
     }
 }

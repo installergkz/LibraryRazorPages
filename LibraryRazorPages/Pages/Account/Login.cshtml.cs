@@ -1,13 +1,11 @@
-using Dapper;
 using LibraryRazorPages.DAL.Interfaces;
-using LibraryRazorPages.DAL.SQL;
+using LibraryRazorPages.DTO;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Data;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -16,37 +14,25 @@ namespace LibraryRazorPages.Pages.Account
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly IDbConnectionFactory _connectionFactory;
-        public LoginModel(IDbConnectionFactory connectionFactory)
+        private readonly IUserRepository _userRepository;
+        public LoginModel(IUserRepository userRepository)
         {
-            _connectionFactory = connectionFactory;
-        } 
+            _userRepository = userRepository;
+        }
 
         [BindProperty]
-        public LoginInput Input { get; set; }
+        public LoginFormDto LoginForm { get; set; }
         public string ErrorMessage { get; set; }
-
-        public class LoginInput
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
-        }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (string.IsNullOrEmpty(Input.Username) || string.IsNullOrEmpty(Input.Password))
+            if (string.IsNullOrEmpty(LoginForm.Login) || string.IsNullOrEmpty(LoginForm.Password))
             {
                 ErrorMessage = "Введите логин и пароль";
                 return Page();
             }
 
-            using var connection = _connectionFactory.CreateConnection();
-
-            var user = await connection.QuerySingleOrDefaultAsync<UserDbModel>(
-                Queries.StoredProcedures.GetUserByName,
-                new { Input.Username },
-                commandType: CommandType.StoredProcedure);
-
+            var user = await _userRepository.GetByLoginAsync(LoginForm.Login);
             if (user == null)
             {
                 ErrorMessage = "Неверный логин или пароль";
@@ -54,7 +40,7 @@ namespace LibraryRazorPages.Pages.Account
             }
 
             // Проверяем пароль
-            if (!VerifyPassword(Input.Password, user.PasswordHash))
+            if (!VerifyPassword(LoginForm.Password, user.PasswordHash))
             {
                 ErrorMessage = "Неверный логин или пароль";
                 return Page();
@@ -62,10 +48,10 @@ namespace LibraryRazorPages.Pages.Account
 
             // Создаем куки
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+            {
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
@@ -97,14 +83,6 @@ namespace LibraryRazorPages.Pages.Account
             {
                 return false;
             }
-        }
-
-        private class UserDbModel
-        {
-            public int Id { get; set; }
-            public string Username { get; set; }
-            public string PasswordHash { get; set; }
-            public string Role { get; set; }
         }
     }
 }

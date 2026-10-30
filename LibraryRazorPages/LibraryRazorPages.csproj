@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DAL\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.8.5" />
     <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="Dapper.FluentMap" Version="3.6.0" />

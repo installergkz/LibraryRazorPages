@@ -1,28 +1,28 @@
-﻿using MongoDB.Driver;
-using LibraryRazorPages.Models;
+﻿using LibraryRazorPages.Enums;
+using LibraryRazorPages.Services.Interfaces;
+using MongoDB.Driver;
 
-namespace LibraryRazorPages.Services
+public class MongoLogService : IMongoLogService
 {
-    public class MongoLogService
+    private readonly IMongoCollection<ActivityLog> _logsCollection;
+
+    public MongoLogService(IMongoCollection<ActivityLog> logsCollection)
     {
-        private readonly IMongoCollection<BookViewLog> _logsCollection;
+        _logsCollection = logsCollection ?? throw new ArgumentNullException(nameof(logsCollection));
+    }
 
-        public MongoLogService(IConfiguration config)
+    public async Task LogAsync(string entityType, string entityId, string entityName, LogAction action,
+        string? userName, CancellationToken cancellationToken = default)
+    {
+        var log = new ActivityLog
         {
-            var connectionString = config.GetConnectionString("MongoDb");
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase("LibraryLogs"); 
-            _logsCollection = database.GetCollection<BookViewLog>("BookViews"); 
-        }
-
-        public async Task LogViewAsync(string bookTitle, string? userName)
-        {
-            var log = new BookViewLog
-            {
-                BookTitle = bookTitle,
-                UserName = userName
-            };
-            await _logsCollection.InsertOneAsync(log);
-        }
+            EntityType = entityType,
+            EntityId = entityId,
+            EntityName = entityName,
+            Action = action,
+            UserName = userName,
+            Timestamp = DateTime.UtcNow
+        };
+        await _logsCollection.InsertOneAsync(log, null, cancellationToken);
     }
 }
