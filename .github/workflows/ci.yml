@@ -2,7 +2,9 @@ name: LibraryBuildTest
 
 on:
   push:
-    branches: [ main ]
+    branches: [ test ]
+  pull_request:
+    branches: [ test ]
 
 jobs:
   build-and-push:
@@ -26,4 +28,4 @@ jobs:
           context: . 
           file: ./LibraryRazorPages/Dockerfile 
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/libraryrazorpages:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/libraryrazorpages:test
