@@ -1,0 +1,38 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: library-app
+  template:
+    metadata:
+      labels:
+        app: library-app
+    spec:
+      containers:
+      - name: app
+        image: libraryrazorpages:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MongoDb__ConnectionString
+          value: "mongodb://host.docker.internal:27017?directConnection=true"
+        - name: ConnectionStrings__Default
+          value: "Server=192.168.50.39,1433;Database=Library;User Id=sa;Password=1111111$@Sa;TrustServerCertificate=True;"
+        - name: Database__Provider
+          value: "mssql"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: library-app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: library-app
+  ports:
+  - port: 8080
+    targetPort: 8080
